@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.books.schemas import BookCreate, BookUpdate
 from src.books.models import Book as BookModel
@@ -23,7 +24,14 @@ class BookService:
 
         result = await session.exec(statement)
 
-        return result.first()
+        book = result.first()
+        
+        # if book is None:
+        #     raise HTTPException(status_code=404, detail="Book not found")
+        
+        # return book
+        
+        return book if book is not None else None
 
     async def create_book(
         self, book_uid: str, book_data: BookCreate, session: AsyncSession
@@ -41,7 +49,20 @@ class BookService:
     async def update_book(
         self, book_uid: str, update_data: BookUpdate, session: AsyncSession
     ):
-        pass
+        book_to_update = await self.get_book(book_uid, session)
+        
+        if book_to_update is not None:
+            update_data_dict = update_data.model_dump(exclude_unset=True)
+            
+            for key, value in update_data_dict.items():
+                if hasattr(book_to_update, key):
+                    setattr(book_to_update, key, value)
+                
+            await session.commit()
+            
+            return book_to_update
+        else:
+            return None
 
     async def delete_book(self, book_uid: str, session: AsyncSession):
         pass

@@ -16,3 +16,6 @@ async def init_db():
         from src.books.models import Book
         
         await conn.run_sync(SQLModel.metadata.create_all)
+        
+async def get_session():
+    pass

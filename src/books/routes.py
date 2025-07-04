@@ -38,6 +38,7 @@ async def create_book(
 
     new_book = await book_service.create_book(book_data, session)
     return new_book
+    # return Book.model_validate(new_book)
 
 
 # UPDATE

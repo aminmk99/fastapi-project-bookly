@@ -26,11 +26,6 @@ class BookService:
 
         book = result.first()
         
-        # if book is None:
-        #     raise HTTPException(status_code=404, detail="Book not found")
-        
-        # return book
-        
         return book if book is not None else None
 
     async def create_book(
@@ -71,6 +66,8 @@ class BookService:
             await session.delete(book_to_delete)
             
             await session.commit()
+            
+            return {}
         
         else:
             return None

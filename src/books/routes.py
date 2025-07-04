@@ -5,6 +5,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.books.service import BookService
 from src.books.schemas import Book, BookUpdate, BookCreate
+from src.books.models import Book as BookModel
 from src.db.main import get_session
 
 
@@ -34,11 +35,21 @@ async def get_book(book_uid: str, session: AsyncSession = Depends(get_session)):
 @book_router.post("/", response_model=Book, status_code=status.HTTP_201_CREATED)
 async def create_book(
     book_data: BookCreate, session: AsyncSession = Depends(get_session)
-) -> Book:  # Which return type is correct? Book or Dictionary?
-
+) -> Book:
     new_book = await book_service.create_book(book_data, session)
+    # return Book.model_validate(new_book)  # ✅ Convert DB model to schema
     return new_book
-    # return Book.model_validate(new_book)
+
+#The second code is for when we want to return book as a book with database style
+#That's actually how the instructor did but ChatGPT said we should stick to schema style for returning 
+
+# @book_router.post("/", response_model=BookModel, status_code=status.HTTP_201_CREATED)
+# async def create_book(
+#     book_data: BookCreate, session: AsyncSession = Depends(get_session)
+# ) -> dict:  # Which return type is correct? Book or Dictionary?
+
+#     new_book = await book_service.create_book(book_data, session)
+#     return new_book
 
 
 # UPDATE
@@ -52,8 +63,8 @@ async def update_book(
         session,
     )
 
-    if update_book:
-        return update_book
+    if updated_book:
+        return updated_book
     else:
         raise HTTPException(status_code=404, detail="Book not found")
 
@@ -63,7 +74,7 @@ async def update_book(
 async def delete_book(book_uid: str, session: AsyncSession = Depends(get_session)):
     deleted_book = await book_service.delete_book(book_uid, session)
     
-    if deleted_book:
-        return None
+    if deleted_book is None:
+        return HTTPException(status_code=404, detail="Book not found")
     else:
-        raise HTTPException(status_code=404, detail="Book not found")
+        return {}

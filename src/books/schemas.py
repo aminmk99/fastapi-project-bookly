@@ -4,15 +4,18 @@ from typing import Optional
 import uuid
 
 class Book(BaseModel):
-    id: uuid.UUID
+    uid: uuid.UUID
     title: str
     author: str
     publisher: str
-    published_date: str
+    published_date: date
     page_count: int
     language: str
     created_at: datetime
     updated_at: datetime
+    
+    # class Config:
+    #     from_attributes = True
 
 class BookCreate(BaseModel):
     title: str

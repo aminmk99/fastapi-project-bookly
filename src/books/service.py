@@ -29,7 +29,7 @@ class BookService:
         return book if book is not None else None
 
     async def create_book(
-        self, book_uid: str, book_data: BookCreate, session: AsyncSession
+        self, book_data: BookCreate, session: AsyncSession
     ):
         book_data_dict = book_data.model_dump()
 

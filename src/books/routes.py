@@ -4,7 +4,7 @@ from fastapi.exceptions import HTTPException
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.books.service import BookService
-from src.books.schemas import Book, BookUpdate
+from src.books.schemas import Book, BookUpdate, BookCreate
 from src.db.main import get_session
 
 
@@ -16,7 +16,7 @@ book_service = BookService()
 @book_router.get("/", response_model=List[Book])
 async def get_books(session: AsyncSession = Depends(get_session)):
 
-    books = book_service.get_all_books(session)
+    books = await book_service.get_all_books(session)
     return books
 
 
@@ -33,7 +33,7 @@ async def get_book(book_uid: str, session: AsyncSession = Depends(get_session)):
 # CREATE
 @book_router.post("/", response_model=Book, status_code=status.HTTP_201_CREATED)
 async def create_book(
-    book_data: Book, session: AsyncSession = Depends(get_session)
+    book_data: BookCreate, session: AsyncSession = Depends(get_session)
 ) -> Book:  # Which return type is correct? Book or Dictionary?
 
     new_book = await book_service.create_book(book_data, session)

@@ -36,7 +36,9 @@ def upgrade() -> None:
     op.alter_column('books', 'published_date',
                existing_type=sa.VARCHAR(),
                type_=sa.Date(),
-               existing_nullable=False)
+               existing_nullable=False,
+               postgresql_using="published_date::date",
+               )
     # ### end Alembic commands ###
 
 

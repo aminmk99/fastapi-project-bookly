@@ -16,6 +16,9 @@ class User(SQLModel, table=True):
     email: str
     first_name: str
     last_name: str
-    is_verified: bool = False
+    is_verified: bool = Field(default=False)
     created_at: datetime = Field(sa_column=Column(pg.TIMESTAMP, server_default=func.now()))
-    updated_at: datetime = Field(sa_column=Column(pg.TIMESTAMP, default=datetime.now))
+    updated_at: datetime = Field(sa_column=Column(pg.TIMESTAMP, default=datetime.now)) #This doesn't work
+    
+    def __repr__(self):
+        return f"<User {self.username}>"

@@ -1,4 +1,5 @@
 from .models import User
+from .schemas import UserCreate
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlmodel import select
 
@@ -18,5 +19,8 @@ class UserService:
 
         # return False if user is None else True
         return user is not None
-    
-    
+
+    async def user_create(self, user_data: UserCreate, session: AsyncSession):
+        user_data_dict = user_data.model_dump()
+        
+        new_user = User(**user_data_dict)

@@ -4,6 +4,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from .schemas import UserCreate, User
 from .service import UserService
+from .utils import create_access_token, decode_token
 from src.db.main import get_session
 
 auth_router = APIRouter()
@@ -30,3 +31,8 @@ async def create_user_account(
     new_user = await user_service.user_create(user_data, session)
 
     return new_user
+
+
+@auth_router.post('/login')
+async def login_users():
+    pass

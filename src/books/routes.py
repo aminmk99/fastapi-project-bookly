@@ -22,6 +22,7 @@ async def get_books(
     user_details=Depends(access_token_bearer),
 ):
 
+    print(user_details)
     books = await book_service.get_all_books(session)
     return books
 

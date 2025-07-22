@@ -33,7 +33,7 @@ class AccessTokenBearer(HTTPBearer):
                 detail="Please provide an access token",
             )
 
-        return creds
+        return token_data
 
     def token_valid(self, token: str) -> bool:
 

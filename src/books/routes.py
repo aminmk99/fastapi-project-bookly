@@ -7,15 +7,20 @@ from src.books.service import BookService
 from src.books.schemas import Book, BookUpdate, BookCreate
 from src.books.models import Book as BookModel
 from src.db.main import get_session
+from src.auth.dependencies import AccessTokenBearer
 
 
 book_router = APIRouter()
 book_service = BookService()
+access_token_bearer = AccessTokenBearer()
 
 
 # READ ALL BOOKS
 @book_router.get("/", response_model=List[Book])
-async def get_books(session: AsyncSession = Depends(get_session)):
+async def get_books(
+    session: AsyncSession = Depends(get_session),
+    user_details=Depends(access_token_bearer),
+):
 
     books = await book_service.get_all_books(session)
     return books
@@ -40,8 +45,9 @@ async def create_book(
     # return Book.model_validate(new_book)  # ✅ Convert DB model to schema
     return new_book
 
-#The second code is for when we want to return book as a book with database style
-#That's actually how the instructor did but ChatGPT said we should stick to schema style for returning 
+
+# The second code is for when we want to return book as a book with database style
+# That's actually how the instructor did but ChatGPT said we should stick to schema style for returning
 
 # @book_router.post("/", response_model=BookModel, status_code=status.HTTP_201_CREATED)
 # async def create_book(
@@ -73,7 +79,7 @@ async def update_book(
 @book_router.delete("/{book_uid}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_book(book_uid: str, session: AsyncSession = Depends(get_session)):
     deleted_book = await book_service.delete_book(book_uid, session)
-    
+
     if deleted_book is None:
         return HTTPException(status_code=404, detail="Book not found")
     else:

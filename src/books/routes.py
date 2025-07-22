@@ -28,7 +28,11 @@ async def get_books(
 
 # READ A BOOK
 @book_router.get("/{book_uid}", response_model=Book)
-async def get_book(book_uid: str, session: AsyncSession = Depends(get_session)):
+async def get_book(
+    book_uid: str,
+    session: AsyncSession = Depends(get_session),
+    user_details=Depends(access_token_bearer),
+):
     book = await book_service.get_book(book_uid, session)
     if book:
         return book
@@ -39,7 +43,9 @@ async def get_book(book_uid: str, session: AsyncSession = Depends(get_session)):
 # CREATE
 @book_router.post("/", response_model=Book, status_code=status.HTTP_201_CREATED)
 async def create_book(
-    book_data: BookCreate, session: AsyncSession = Depends(get_session)
+    book_data: BookCreate,
+    session: AsyncSession = Depends(get_session),
+    user_details=Depends(access_token_bearer),
 ) -> Book:
     new_book = await book_service.create_book(book_data, session)
     # return Book.model_validate(new_book)  # ✅ Convert DB model to schema
@@ -61,7 +67,10 @@ async def create_book(
 # UPDATE
 @book_router.patch("/{book_uid}", response_model=Book)
 async def update_book(
-    book_uid: str, update_data: BookUpdate, session: AsyncSession = Depends(get_session)
+    book_uid: str,
+    update_data: BookUpdate,
+    session: AsyncSession = Depends(get_session),
+    user_details=Depends(access_token_bearer),
 ) -> Book:
     updated_book = await book_service.update_book(
         book_uid,
@@ -77,7 +86,11 @@ async def update_book(
 
 # DELETE
 @book_router.delete("/{book_uid}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_book(book_uid: str, session: AsyncSession = Depends(get_session)):
+async def delete_book(
+    book_uid: str,
+    session: AsyncSession = Depends(get_session),
+    user_details=Depends(access_token_bearer),
+):
     deleted_book = await book_service.delete_book(book_uid, session)
 
     if deleted_book is None:

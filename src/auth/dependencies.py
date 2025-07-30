@@ -7,7 +7,7 @@ from fastapi import Request, status
 from .utils import decode_token
 
 
-class AccessTokenBearer(HTTPBearer):
+class TokenBearer(HTTPBearer):
 
     def __init__(self, auto_error=True):
         super().__init__(auto_error=auto_error)
@@ -27,11 +27,7 @@ class AccessTokenBearer(HTTPBearer):
                 detail="Invalid or expired token",
             )
             
-        if token_data['refresh']:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Please provide an access token",
-            )
+        self.verify_token_data(token_data)
 
         return token_data
 
@@ -40,3 +36,26 @@ class AccessTokenBearer(HTTPBearer):
         token_data = decode_token(token=token)
 
         return True if token_data is not None else False
+    
+    def verify_token_data(self, token_data):
+        raise NotImplementedError("Please Override This Method In Children Classes")
+
+
+class AccessTokenBearer(TokenBearer):
+
+    def verify_token_data(self, token_data: dict) -> None:
+        if token_data and token_data["refresh"]:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Please provide an access token",
+            )
+
+
+class RefreshTokenBearer(AccessTokenBearer):
+    
+    def verify_token_data(self, token_data: dict) -> None:
+        if token_data and not token_data["refresh"]:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Please provide a refresh token",
+            )

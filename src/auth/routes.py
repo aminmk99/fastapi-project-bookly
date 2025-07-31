@@ -7,8 +7,9 @@ from datetime import timedelta, datetime
 from .schemas import UserCreate, User, UserLogin
 from .service import UserService
 from .utils import create_access_token, verify_password
-from .dependencies import RefreshTokenBearer
+from .dependencies import RefreshTokenBearer, AccessTokenBearer
 from src.db.main import get_session
+from src.db.redis import add_jwi_to_blocklist
 
 auth_router = APIRouter()
 user_service = UserService()
@@ -90,27 +91,14 @@ async def get_new_access_token(token_details: dict = Depends(RefreshTokenBearer(
         status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired token"
     )
 
-    # if user is not None:
-    #     is_password_valid = verify_password(password, user.password_hash)
 
-    #     if is_password_valid:
-    #         access_token = create_access_token(
-    #             user_data={"email": user.email, "user uid": str(user.uid)}
-    #         )
-    #         refresh_token = create_access_token(
-    #             user_data={"email": user.email, "user uid": str(user.uid)},
-    #             expiry=timedelta(days=REFRESH_TOKEN_EXPIRY),
-    #             refresh=True
-    #         )
+@auth_router.get("/logout")
+async def revoke_token(token_details: dict = Depends(AccessTokenBearer())):
+    jti = token_details["jti"]
 
-    #         return JSONResponse(
-    #             content={
-    #                 "message": "Login Successful",
-    #                 "access_token": access_token,
-    #                 "refresh_token": refresh_token,
-    #                 "user": {
-    #                     "email": user.email,
-    #                     "uid": str(user.uid)
-    #                 }
-    #             }
-    #         )
+    await add_jwi_to_blocklist(jti)
+
+    return JSONResponse(
+        content={"message": "Logged out successfully"},
+        status_code=status.HTTP_200_OK,
+    )

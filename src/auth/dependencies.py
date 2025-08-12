@@ -4,7 +4,7 @@ from fastapi.exceptions import HTTPException
 from fastapi.security import HTTPBearer
 from fastapi import Request, status
 
-from src.db.redis import token_block_list
+from src.db.redis import token_in_blocklist
 
 from .utils import decode_token
 
@@ -32,7 +32,7 @@ class TokenBearer(HTTPBearer):
                 },
             )
 
-        if await token_block_list(token_data["jti"]):
+        if await token_in_blocklist(token_data["jti"]):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail={

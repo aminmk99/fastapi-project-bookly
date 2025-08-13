@@ -4,6 +4,7 @@ from src.auth.routes import auth_router
 from contextlib import asynccontextmanager
 from src.db.main import init_db
 
+
 @asynccontextmanager
 async def life_span(app: FastAPI):
     # ✅ Start-up logic here
@@ -13,14 +14,15 @@ async def life_span(app: FastAPI):
     # ✅ Shut-down logic here
     print("Server has been stopped")
 
-version = 'v1'
+
+version = "v1"
 
 app = FastAPI(
-    title= "Bookely",
-    description= "REST API for a book review web service",
-    version= version,
-    lifespan=life_span
+    title="Bookely",
+    description="REST API for a book review web service",
+    version=version,
+    # lifespan=life_span
 )
 
-app.include_router(book_router, prefix=f"/api/{version}/books", tags=['Books'])
-app.include_router(auth_router, prefix=f"/api/{version}/auth", tags=['Authentication'])
+app.include_router(book_router, prefix=f"/api/{version}/books", tags=["Books"])
+app.include_router(auth_router, prefix=f"/api/{version}/auth", tags=["Authentication"])

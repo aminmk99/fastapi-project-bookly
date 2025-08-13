@@ -7,12 +7,13 @@ from datetime import timedelta, datetime
 from .schemas import UserCreate, User, UserLogin
 from .service import UserService
 from .utils import create_access_token, verify_password
-from .dependencies import RefreshTokenBearer, AccessTokenBearer, get_current_user
+from .dependencies import RefreshTokenBearer, AccessTokenBearer, RoleChecker, get_current_user
 from src.db.main import get_session
 from src.db.redis import add_jwi_to_blocklist
 
 auth_router = APIRouter()
 user_service = UserService()
+role_checker = RoleChecker(['admin', 'user'])
 
 REFRESH_TOKEN_EXPIRY = 2
 
@@ -59,7 +60,7 @@ async def login_users(
         )
 
     access_token = create_access_token(
-        user_data={"email": user.email, "user uid": str(user.uid)}
+        user_data={"email": user.email, "user uid": str(user.uid), "role": user.role}
     )
     refresh_token = create_access_token(
         user_data={"email": user.email, "user uid": str(user.uid)},
@@ -93,7 +94,7 @@ async def get_new_access_token(token_details: dict = Depends(RefreshTokenBearer(
 
 
 @auth_router.get('/me')
-async def get_current_user(user = Depends(get_current_user)):
+async def get_current_user(user = Depends(get_current_user), _:bool = Depends(role_checker)):
     return user
 
 

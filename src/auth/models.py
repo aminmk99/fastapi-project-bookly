@@ -1,11 +1,13 @@
-from sqlmodel import SQLModel, Field, Column
+from typing import List
+from sqlmodel import Relationship, SQLModel, Field, Column
 import sqlalchemy.dialects.postgresql as pg
 from sqlalchemy.sql import func
+from src.books import models
 from datetime import datetime
 import uuid
 
 
-class User(SQLModel, table=True):
+class UserModel(SQLModel, table=True):
     __tablename__ = "users"
     
     uid: uuid.UUID = Field(
@@ -22,6 +24,7 @@ class User(SQLModel, table=True):
     password_hash: str = Field(exclude=True)
     created_at: datetime = Field(sa_column=Column(pg.TIMESTAMP, server_default=func.now()))
     updated_at: datetime = Field(sa_column=Column(pg.TIMESTAMP, default=datetime.now)) #This doesn't work
+    books: List["models.Book"]  = Relationship(back_populates="user", sa_relationship_kwargs={'lazy': 'selectin'})
     
     def __repr__(self):
         return f"<User {self.username}>"
